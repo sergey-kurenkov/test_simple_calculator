@@ -14,46 +14,10 @@
 
 # Points to the root of Google Test, relative to where this file is.
 # Remember to tweak this if you move this file.
-
-.PHONY: all test
-
-PLATFORM=UNKNOWN_OS
-ifeq ($(shell uname), Linux)
-  PLATFORM=linux
-endif
-ifeq ($(shell uname), CYGWIN_NT-4.0)
-  PLATFORM=win32
-endif
-ifeq ($(shell uname), CYGWIN_NT-5.0)
-  PLATFORM=win32
-endif
-ifeq ($(shell uname), CYGWIN_NT-5.1)
-  PLATFORM=win32
-endif
-ifeq ($(shell uname), MINGW32_NT-4.0)
-  PLATFORM=win32
-endif
-ifeq ($(shell uname), MINGW32-5.0)
-  PLATFORM=win32
-endif
-ifeq ($(shell uname), MINGW32_NT-5.1)
-  PLATFORM=win32
-endif
-
-ifeq "$(PLATFORM)" "UNKNOWN_OS"
-    $(error Unknown OS)
-endif
-
-ifeq "$(PLATFORM)" "linux"
-    GTEST_DIR = ./googletest/googletest
-endif
-
-ifeq "$(PLATFORM)" "win32"
-    GTEST_DIR = ./googletest.win32/googletest
-endif
+GTEST_DIR = ..
 
 # Where to find user code.
-USER_DIR = .
+USER_DIR = ../samples
 
 # Flags passed to the preprocessor.
 # Set Google Test's header directory as a system directory, such that
@@ -61,20 +25,16 @@ USER_DIR = .
 CPPFLAGS += -isystem $(GTEST_DIR)/include
 
 # Flags passed to the C++ compiler.
-ifeq "$(PLATFORM)" "linux"
-    CXXFLAGS += -std=c++11 -g -Wall -Wextra -pthread
-else
-    CXXFLAGS += -std=gnu++0x -g -Wall -Wextra -pthread
-endif
+CXXFLAGS += -g -Wall -Wextra -pthread
 
 # All tests produced by this Makefile.  Remember to add new tests you
 # created to the list.
-TESTS = calc calc_unittest
+TESTS = sample1_unittest
 
 # All Google Test headers.  Usually you shouldn't change this
 # definition.
-GTEST_HEADERS = $(wildcard $(GTEST_DIR)/include/gtest/*.h) \
-                $(wildcard $(GTEST_DIR)/include/gtest/internal/*.h)
+GTEST_HEADERS = $(GTEST_DIR)/include/gtest/*.h \
+                $(GTEST_DIR)/include/gtest/internal/*.h
 
 # House-keeping build targets.
 
@@ -87,7 +47,7 @@ clean :
 
 # Usually you shouldn't tweak such internal variables, indicated by a
 # trailing _.
-GTEST_SRCS_ = $(wildcard $(GTEST_DIR)/src/*.cc) $(wildcard $(GTEST_DIR)/src/*.h) $(GTEST_HEADERS)
+GTEST_SRCS_ = $(GTEST_DIR)/src/*.cc $(GTEST_DIR)/src/*.h $(GTEST_HEADERS)
 
 # For simplicity and to avoid depending on Google Test's
 # implementation details, the dependencies specified below are
@@ -111,20 +71,12 @@ gtest_main.a : gtest-all.o gtest_main.o
 # gtest_main.a, depending on whether it defines its own main()
 # function.
 
-RPATH = -Wl,-rpath,$(shell dirname $(shell which $(CXX)))/../lib64
+sample1.o : $(USER_DIR)/sample1.cc $(USER_DIR)/sample1.h $(GTEST_HEADERS)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(USER_DIR)/sample1.cc
 
+sample1_unittest.o : $(USER_DIR)/sample1_unittest.cc \
+                     $(USER_DIR)/sample1.h $(GTEST_HEADERS)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(USER_DIR)/sample1_unittest.cc
 
-calc.o : $(USER_DIR)/calc.cpp $(GTEST_HEADERS)
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -o $@ -c $(USER_DIR)/calc.cpp
-
-calc_unittest.o : $(USER_DIR)/calc.cpp $(GTEST_HEADERS)
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -DUNIT_TESTS -o $@ -c $(USER_DIR)/calc.cpp
-
-calc_unittest : calc_unittest.o gtest_main.a
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@ $(RPATH)
-
-calc : calc.o
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@ $(RPATH)
-
-test: all
-	./calc_unittest
+sample1_unittest : sample1.o sample1_unittest.o gtest_main.a
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@

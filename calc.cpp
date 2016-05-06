@@ -5,6 +5,7 @@
 #include <string>
 #include <limits>
 #include <stdexcept>
+#include <sstream>
 
 /*
  * 
@@ -269,9 +270,9 @@ scanner::scanner() : position_(0) {
  *
  */
 std::string scanner::make_err_message(std::string message) {
-    std::string res = "position: " + std::to_string(position_)
-                      + ", error: " + std::move(message);
-    return std::move(res);
+    std::ostringstream ss;
+    ss << "position: " << position_ << ", error: " << message;
+    return ss.str();
 }
 
 
@@ -325,7 +326,12 @@ calc_int_t scanner::read_number() {
                 make_err_message("not a number"));
     }
     try {
-        auto res = std::stoi(number);
+        calc_int_t res;
+        std::istringstream ss(number);
+        ss >> res;
+        if (!ss) {
+            throw std::runtime_error("Invalid number");
+        }
         position_ = curr_position;
         return res;
     } catch (std::invalid_argument& e) {
@@ -355,9 +361,9 @@ parser::parser() : scanner_() {
  *
  */
 std::string parser::make_err_message(std::string message) {
-    std::string res = "position: " + std::to_string(scanner_.get_position()) +
-                      + ", error: " + std::move(message);
-    return std::move(res);
+    std::ostringstream ss;
+    ss << "position: " << scanner_.get_position() << ", error: " << message;
+    return ss.str();
 }
 
 /*

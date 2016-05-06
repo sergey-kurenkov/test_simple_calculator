@@ -1,0 +1,10 @@
+*~
+*.o
+*.a
+md_replay
+md_replay_unittest
+*.exe
+.cproject
+.project
+.settings
+
