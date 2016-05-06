@@ -1,1 +1,1 @@
-Using the programming language of your choice among C, C++, and Python, implement a simple calculator that satisfies conditions. Full specification is here: https://github.com/skwllsp/test_simple_calculator/blob/master/simple-calc.pdf
+Using the programming language of your choice among C, C++, and Python, implement a simple calculator that satisfies conditions. Full specification is here: https://github.com/skwllsp/test_simple_calculator/blob/master/simple-calc.pdf.
