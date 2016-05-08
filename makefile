@@ -49,7 +49,7 @@ ifeq "$(PLATFORM)" "linux"
 endif
 
 ifeq "$(PLATFORM)" "win32"
-    GTEST_DIR = ./googletest.win32/googletest
+    GTEST_DIR = ./googletest.cygwin/googletest
 endif
 
 # Where to find user code.
@@ -63,8 +63,9 @@ CPPFLAGS += -isystem $(GTEST_DIR)/include
 # Flags passed to the C++ compiler.
 ifeq "$(PLATFORM)" "linux"
     CXXFLAGS += -std=c++11 -g -Wall -Wextra -pthread
+    LDFLAGS += -lthread
 else
-    CXXFLAGS += -std=gnu++0x -g -Wall -Wextra -pthread
+    CXXFLAGS += -D_WIN32_WINNT=0x0501 -std=gnu++0x -g -Wall -Wextra
 endif
 
 # All tests produced by this Makefile.  Remember to add new tests you
@@ -121,10 +122,10 @@ calc_unittest.o : $(USER_DIR)/calc.cpp $(GTEST_HEADERS)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -DUNIT_TESTS -o $@ -c $(USER_DIR)/calc.cpp
 
 calc_unittest : calc_unittest.o gtest_main.a
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@ $(RPATH)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(LDFLAGS) $^ -o $@ $(RPATH)
 
 calc : calc.o
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@ $(RPATH)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(LDFLAGS) $^ -o $@ $(RPATH)
 
 test: all
 	./calc_unittest
