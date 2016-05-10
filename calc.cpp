@@ -6,6 +6,7 @@
 #include <limits>
 #include <stdexcept>
 #include <sstream>
+#include <cmath>
 
 /*
  * 
